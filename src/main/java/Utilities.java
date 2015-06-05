@@ -1,6 +1,9 @@
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,6 +40,8 @@ public class Utilities {
         }
 
         String sDriver = prop.getProperty("mydriver");
+        String chromedriverExeLocation = prop.getProperty
+                ("chromedriverExeLocation");
 
         if (sDriver.toLowerCase().equals("firefox")) {
             mydriver = new FirefoxDriver();
@@ -44,15 +49,12 @@ public class Utilities {
             if (sDriver.toLowerCase().equals("chrome")) {
                 System.setProperty(
                         "webdriver.chrome.driver",
-                        //FIXME: Can I do this with relative path?
-                        "C:\\Users\\Eric the " +
-                                "Boss\\workspace2\\WIKIA_EWIEGMAN\\HomeWork\\src\\main\\resources\\chromedriver_win32\\chromedriver.exe");
+                        System.getProperty("user.dir") + chromedriverExeLocation);
                 mydriver = new ChromeDriver();
             } else {
                 // fall back on this as a default
                 mydriver = new FirefoxDriver();
             }
-
         }
 
         return mydriver;
@@ -106,5 +108,35 @@ public class Utilities {
 
         //RETURNS the short old-fashioned code such as "PDT"
         return serverTimeShortTZ;
+    }
+
+    /**
+     * Special version of sendKeys, which doesn't natively select existing
+     * value in the input text field and clear it out before typing in the
+     * new value.<br><br>Since the native sendKeys, on some browsers, can lead
+     * to appending the new value to the end (or perhaps the middle) of the
+     * existing value, this method was written.<br><br>
+     * TODO: A subclass of the WebElement interface should be done and this
+     * method added to it in an object oriented fashion.
+     *
+     * @param webElement the WebElement
+     * @param value the value to 'type' into the input (text) field
+     */
+    public void setText(WebElement webElement, String value) {
+        String selectAll = Keys.chord(Keys.CONTROL, "a");
+        webElement.sendKeys(selectAll);
+        webElement.sendKeys(Keys.BACK_SPACE);
+        webElement.sendKeys(value);
+    }
+
+    /**
+     * Do Hover.
+     *
+     * @param driver the driver
+     * @param webElement the web element
+     */
+    public void doHover (WebDriver driver, WebElement webElement) {
+        Actions action = new Actions(driver);
+        action.moveToElement(webElement).build().perform();
     }
 }

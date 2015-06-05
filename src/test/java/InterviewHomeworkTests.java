@@ -1,6 +1,6 @@
-import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -14,7 +14,10 @@ public class InterviewHomeworkTests {
 
     // ******************** INITIALISATION *********************** //
 
-    // initializing the utility methods
+    /**
+     * The Utils.
+     */
+// initializing the utility methods
     Utilities utils = new Utilities();
 
     /**
@@ -22,11 +25,23 @@ public class InterviewHomeworkTests {
      */
     WebDriver driver = utils.setDriver();
 
-    // initializing the pages used in this set of tests
+    /**
+     * The Wikia home page.
+     */
+// initializing the pages used in this set of tests
     WikiaHomePage wikiaHomePage = new WikiaHomePage(driver);
+    /**
+     * The Wikia video add page.
+     */
     WikiaVideoAddPage wikiaVideoAddPage = new WikiaVideoAddPage(driver);
+    /**
+     * The Videos on this wiki page.
+     */
     VideosOnThisWikiPage videosOnThisWikiPage = new
          VideosOnThisWikiPage (driver);
+    /**
+     * The Best classical music page.
+     */
     BestClassicalMusicPage bestClassicalMusicPage = new
         BestClassicalMusicPage(driver);
 
@@ -39,18 +54,21 @@ public class InterviewHomeworkTests {
         driver.get(Const.TEMPLATE__URL);
     }
 
+    /**
+     * Teardown routine. It quits the browser.
+     */
+    @AfterTest()
+    public void teardown () {driver.quit();}
+
     // ******************** TESTCASE SCENARIOS *********************** //
 
     /**
      * Verify login has occurred and the Avatar has changed from anonymous to
      * your avatar.
      *
-     * @param rememberMe
-     *  the 'Remember me' checkbox is checked, if set to true ... else, it
+     * @param rememberMe   the 'Remember me' checkbox is checked, if set to true ... else, it
      *  remains unchecked
-     *
-     * @throws IOException
-     *  Exception thrown if config.properties (defining login credentials, etc.)
+     * @throws IOException   Exception thrown if config.properties (defining login credentials, etc.)
      *  is not in classpath
      */
     @Test(
@@ -76,19 +94,12 @@ public class InterviewHomeworkTests {
      * Verify login has occurred and the Avatar has changed from anonymous to
      * your avatar.
      *
-     * @param rememberMe
-     *  the 'Remember me' checkbox is checked, if set to true ... else, it
+     * @param rememberMe   the 'Remember me' checkbox is checked, if set to true ... else, it
      *  remains unchecked
-     *
-     * @param videoURL
-     *  the text to type in the input field to specify the video to download and
+     * @param videoURL   the text to type in the input field to specify the video to download and
      *  put on the wiki page
-     *
-     * @param videoTitle
-     *  the title associated with the downloaded video
-     *
-     * @throws IOException
-     *  Exception thrown if config.properties (defining login credentials, etc.)
+     * @param videoTitle   the title associated with the downloaded video
+     * @throws IOException   Exception thrown if config.properties (defining login credentials, etc.)
      *  is not in classpath
      */
     @Test(
@@ -133,13 +144,10 @@ public class InterviewHomeworkTests {
         String username = prop.getProperty("username");
         String password = prop.getProperty("password");
 
-        // Loading of advertising, etc seems to pull the focus from the login
-        // pop-up, so this code keeps trying many times to ensure a stable
-        // pop-up is achieved.
-
         int tries = 0;
 
-        while (tries < 4) {
+
+        while (tries < 2) {
             try {
                 wikiaHomePage.invokeLoginPage(driver);
 
@@ -148,15 +156,19 @@ public class InterviewHomeworkTests {
                         password,
                         rememberMe
                 );
-                break;
-            } catch (ElementNotVisibleException enve) {
-                //enve.printStackTrace();
+                //hooray! no exception thrown. We go to 'finally'.
+            } catch (Exception e) {
+                // menu did not pop up OR
+                // username or password field not found OR
+                // rememberMe button wasn't seen
+
+                //thus, we try again
+                tries ++;
+            } finally {
+                //makes sure the menu (pop-up) goes away by hovering elsewhere
+                utils.doHover(driver,wikiaHomePage.headerTitle);
             }
-
-            tries++;
         }
-
         return username;
-
     }
 }

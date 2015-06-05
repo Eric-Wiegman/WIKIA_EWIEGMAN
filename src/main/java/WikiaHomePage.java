@@ -11,12 +11,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 public class WikiaHomePage {
 
+  /**
+   * The Utils.
+     */
+  Utilities utils = new Utilities();
+
   // ************************  CONSTANTS *********************** //
 
   /**
    * The Constant LOGIN_ELEMENT_STRING, used to recognize and to wait for the
    * non-logged in (anonymous) avatar.
-   */
+     */
   public static final String LOGIN_ELEMENT_STRING =
           "account-navigation-first-item";
 
@@ -24,7 +29,7 @@ public class WikiaHomePage {
    * The Constant USERNAME_TITLE_ELEMENT_STRING, used to recognize and to wait
    * for the item associated with the Title that identifies the avatar as
    * belonging to the username.
-   */
+     */
   public static final String USERNAME_TITLE_ELEMENT_STRING =
           "//*[@class='account-navigation-first-item']/div/a";
 
@@ -32,9 +37,15 @@ public class WikiaHomePage {
   // *************  WEBELEMENTS AND INITIALISATION ************* //
 
   /**
+   * The Header title.
+     */
+  @FindBy(className = "header-title")
+  WebElement headerTitle;
+
+  /**
    * This is the not-logged-in avatar, which when clicked pops up the login
    * 'page'
-   */
+     */
   @FindBy(className = LOGIN_ELEMENT_STRING)
   WebElement nonLoggedInAvatar;
 
@@ -65,7 +76,7 @@ public class WikiaHomePage {
   /**
    * This is the login 'button'
    */
-  @FindBy(className = "login-button" )
+  @FindBy(xpath = "//*[@id='UserLoginDropdown']/form/fieldset/div[7]/input")
   WebElement loginButton;
 
   /**
@@ -78,7 +89,7 @@ public class WikiaHomePage {
    * usernameText.getAttribute("title") will yield the String "{username} -
    * My page" -- where {username} is substituted with the username login
    * credential.
-   */
+     */
   @FindBy(xpath = USERNAME_TITLE_ELEMENT_STRING)
   WebElement usernameText;
 
@@ -97,7 +108,7 @@ public class WikiaHomePage {
   /**
    * This is another reference to the menu item "Add a Video". It is <b>not</b>
    * language independent, but might be more robust than the above try.
-   */
+     */
   @FindBy(xpath = "//a[.='Add a Video']")
   WebElement addVideoMenuItem2;
 
@@ -105,7 +116,7 @@ public class WikiaHomePage {
    * Initializes the WebElements on the 'Wikia Home' page.
    *
    * @param driver the Selenium WebDriver
-   */
+     */
   public WikiaHomePage(WebDriver driver) {
     //This initElements method will create all WebElements
     PageFactory.initElements(driver, this);
@@ -130,10 +141,8 @@ public class WikiaHomePage {
    * @param driver the driver
      */
   public void invokeLoginPage(WebDriver driver) {
-    WebDriverWait wait = new WebDriverWait(driver, Const.HALF_MINUTE);
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.className
-            (LOGIN_ELEMENT_STRING)));
-    nonLoggedInAvatar.click();
+    utils.doHover(driver, nonLoggedInAvatar);
+
   }
 
   // ******************** REUSABLE METHODS *********************** //
@@ -141,18 +150,17 @@ public class WikiaHomePage {
   /**
    * Login, with option to 'remember me' accommodated.
    *
-   * @param userName   the username (in this case, email)
-   * @param passcode   the password
+   * @param userName the username (in this case, email)
+   * @param passcode the password
    * @param rememberMe the remember me
-   */
+     */
   public void login(String userName, String passcode, boolean rememberMe) {
 
-    username.sendKeys(userName);
-    password.sendKeys(passcode);
+    utils.setText(username, userName);
+    utils.setText(password, passcode);
     if (rememberMe) {
       this.rememberMe.click();
     }
     loginButton.click();
   }
 }
-
